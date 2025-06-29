@@ -12,6 +12,12 @@ A personal planner and Kanban board application designed for the terminal. Built
 *   **Keyboard Navigation**: Move cards between columns using arrow keys.
 *   **Customizable**: Easily modify the look and feel through CSS.
 
+## Prerequisites
+
+Before installing, ensure you have:
+*   **Python 3.8 or higher** installed on your system
+*   **sudo access** for installing the global command
+
 ## Installation and Setup
 
 Follow these steps to get your `adp-planner` up and running:
@@ -28,8 +34,9 @@ cd adp-planner
 ### 2. Run the Installation Script
 
 This project includes an `install.sh` script to automate the setup process. This script will:
-*   Install the necessary Python dependencies.
-*   Create a `planner` command that you can run from any terminal location.
+*   Create a virtual environment to isolate dependencies
+*   Install the necessary Python dependencies (Textual framework)
+*   Create a `planner` command that you can run from any terminal location
 
 To run the installation script:
 
@@ -38,7 +45,10 @@ chmod +x install.sh
 sudo ./install.sh
 ```
 
-**Important:** The `sudo` command is required because the script moves the `planner` command to a system-wide directory (`/usr/local/bin/`). You will be prompted for your system password.
+**Important Notes:**
+*   The `sudo` command is required because the script installs the `planner` command to `/usr/local/bin/` for system-wide access
+*   The script creates a virtual environment (`.venv`) in the project directory to manage dependencies safely
+*   This approach respects modern Python environment management policies and avoids conflicts with system packages
 
 ### 3. Run the Application
 
@@ -47,5 +57,52 @@ After completing the setup, you can open `adp-planner` from any terminal by simp
 ```bash
 planner
 ```
+
+## Troubleshooting
+
+### Virtual Environment
+If you encounter issues with the installation:
+*   The virtual environment is created in `.venv/` within the project directory
+*   Dependencies are installed only within this isolated environment
+*   The global `planner` command automatically activates this environment when run
+
+### Alternative Installation Methods
+
+If the standard installation doesn't work for your system, you can try:
+
+#### Using pipx (Recommended for some systems)
+```bash
+# Install pipx if you don't have it
+brew install pipx  # On macOS
+# or
+pip install --user pipx  # On other systems
+
+# Install the application
+cd kanban-tui
+pipx install .
+```
+
+#### Manual Virtual Environment Setup
+```bash
+# Create and activate virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+pip install textual==3.3.0
+
+# Run directly
+python3 kanban-tui/main.py
+```
+
+## Development
+
+To contribute to the project or run it in development mode:
+
+1. Clone the repository
+2. Create a virtual environment: `python3 -m venv .venv`
+3. Activate it: `source .venv/bin/activate`
+4. Install dependencies: `pip install textual==3.3.0`
+5. Run the app: `python3 kanban-tui/main.py`
 
 Enjoy managing your tasks with adp-planner!
