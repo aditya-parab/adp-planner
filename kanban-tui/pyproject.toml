@@ -1,0 +1,14 @@
+[project]
+name = "adp-planner"
+version = "0.1.0"
+description = "A personal planner and Kanban board for the terminal."
+authors = [{ name = "Aditya", email = "adparab97@gmail.com" }]
+dependencies = [
+    "textual==3.3.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["board", "storage", "main"]
+
+

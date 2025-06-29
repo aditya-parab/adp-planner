@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: kanban-terminal
+Version: 0.1.0
+Summary: A simple Kanban board for the terminal.
+Author-email: Aditya <adparab97@gmail.com>
+Requires-Dist: textual==3.3.0

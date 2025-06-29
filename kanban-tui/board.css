@@ -1,0 +1,150 @@
+/* Matrix-like Theme */
+
+/* Color Definitions */
+$background: #000000; /* Black */
+$surface: #000022;    /* Very dark blue */
+$panel-darken-1: #000044; /* Darker blue for focused elements */
+$primary: #00BFFF;    /* Deep Sky Blue - a vibrant, slightly cyan blue */
+$secondary: #0099CC;   /* Slightly darker Deep Sky Blue for accents */
+$text: #00BFFF;       /* Deep Sky Blue - for text */
+$accent: #00BFFF;     /* Deep Sky Blue - for highlights */
+
+/* General App Styles */
+App {
+    background: $background;
+    color: $text;
+}
+
+/* Horizontal Container for Columns */
+Horizontal {
+    height: 100%;
+    width: auto;
+    background: $background;
+}
+
+/* Individual Column Styling */
+Column {
+    border: heavy $primary;
+    height: 80%;
+    margin: 1;
+    background: $surface;
+    color: $text;
+}
+
+/* Board Container */
+#board-container {
+    height: 100%;
+}
+
+/* Column Title Bar */
+.column-title {
+    text-align: center;
+    background: $primary;
+    color: $background;
+    padding: 1 2;
+    width: 100%;
+    text-style: bold;
+}
+
+/* Card List within Column */
+.card-list {
+    height: 100%;
+    padding: 0 1;
+}
+
+/* Individual Card Styling */
+Card {
+    border: round $surface;
+    margin: 1 0;
+    padding: 1;
+    height: auto;
+    min-height: 5;
+    background: $surface;
+    color: $text;
+}
+
+/* Focused Card Styling */
+Card:focus {
+    border: round $accent;
+    background: $panel-darken-1;
+}
+
+/* Dialogs (Add Card, Add Column, Confirm) */
+AddCardScreen,
+AddColumnScreen,
+ConfirmScreen {
+    align: center middle;
+}
+
+.dialog {
+    width: 60;
+    height: auto;
+    min-height: 20;
+    border: heavy $primary;
+    background: $surface;
+    padding: 2;
+    box-sizing: border-box;
+}
+
+.dialog Vertical {
+    height: auto;
+    box-sizing: border-box;
+}
+
+.dialog Input {
+    height: 3;
+    margin-bottom: 1;
+    box-sizing: border-box;
+    background: $panel-darken-1;
+    color: $text;
+}
+
+.dialog-title {
+    text-align: center;
+    width: 100%;
+    padding-bottom: 1;
+    text-style: bold;
+    color: $accent;
+}
+
+.dialog-buttons {
+    align: center middle;
+    padding-top: 1;
+    height: auto;
+    box-sizing: border-box;
+}
+
+.dialog-buttons Button {
+    margin: 0 1;
+    background: $secondary;
+    color: $background;
+}
+
+.dialog-buttons Button:hover {
+    background: $accent;
+}
+
+/* Text Area for Card Details */
+TextArea {
+    height: 8;
+    margin-bottom: 1;
+    background: $panel-darken-1;
+    color: $text;
+}
+
+/* Card Detail Screen Specifics */
+CardDetailScreen .dialog {
+    min-height: 30;
+}
+
+CardDetailScreen Static {
+    margin-bottom: 1;
+}
+
+CardDetailScreen Static.details-content {
+    border: round $panel-darken-1;
+    padding: 1;
+    height: auto;
+    max-height: 10;
+    overflow-y: scroll;
+}

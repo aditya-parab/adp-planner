@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+kanban_terminal.egg-info/PKG-INFO
+kanban_terminal.egg-info/SOURCES.txt
+kanban_terminal.egg-info/dependency_links.txt
+kanban_terminal.egg-info/requires.txt
+kanban_terminal.egg-info/top_level.txt
+tests/test_board.py
+tests/test_storage.py
