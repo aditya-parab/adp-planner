@@ -11,7 +11,7 @@ MOCK_BOARD = {
         {
             "title": "Test Column",
             "cards": [
-                {"label": "Test Card", "description": "A test card"}
+                {"label": "Test Card", "description": "A test card", "details": "Extended details for the test card"}
             ]
         }
     ]

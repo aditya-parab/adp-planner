@@ -33,6 +33,8 @@ class Card(Static):
     def on_mouse_up(self, event: MouseUp) -> None:
         self.app.end_dragging(event)
 
+    
+
 class Column(Vertical):
     """A column in the Kanban board."""
     can_focus = True
@@ -225,12 +227,15 @@ class KanbanApp(App):
 
                 card_data_to_move = {
                     "label": self._drag_card.label,
-                    "description": self._drag_card.description
+                    "description": self._drag_card.description,
+                    "details": self._drag_card.details
                 }
 
                 self.board_data["columns"][old_column_index]["cards"] = [
                     card for card in self.board_data["columns"][old_column_index]["cards"]
-                    if not (card["label"] == card_data_to_move["label"] and card.get("description", "") == card_data_to_move["description"])
+                    if not (card["label"] == card_data_to_move["label"] and
+                           card.get("description", "") == card_data_to_move["description"] and
+                           card.get("details", "") == card_data_to_move["details"])
                 ]
 
                 new_column_index = list(self.query(Column)).index(target_column)
@@ -269,7 +274,7 @@ class KanbanApp(App):
                 self.board_data["columns"][0]["cards"].append(new_card_data)
                 
                 # Add to UI
-                new_card = Card(label=title, description=description)
+                new_card = Card(label=title, description=description, details=details)
                 first_column = self.query(Column).first() # Use .first() to get the first column
                 if first_column: # Ensure a column exists before adding the widget
                     first_column.add_card_widget(new_card)
@@ -307,7 +312,9 @@ class KanbanApp(App):
             for column_data in self.board_data["columns"]:
                 column_data["cards"] = [
                     card for card in column_data["cards"]
-                    if not (card["label"] == card_to_delete.label and card.get("description", "") == card_to_delete.description)
+                    if not (card["label"] == card_to_delete.label and
+                           card.get("description", "") == card_to_delete.description and
+                           card.get("details", "") == card_to_delete.details)
                 ]
             
             # Save the new state
@@ -326,18 +333,19 @@ class KanbanApp(App):
             target_column_index = current_column_index + direction
 
             if 0 <= target_column_index < len(all_columns):
-                target_column_widget = all_columns[target_column_index]
-
-                # Update data structure
+                # Store data of the card to move
                 card_data_to_move = {
                     "label": card_to_move.label,
-                    "description": card_to_move.description
+                    "description": card_to_move.description,
+                    "details": card_to_move.details
                 }
 
                 # Remove from old column data
                 self.board_data["columns"][current_column_index]["cards"] = [
                     card for card in self.board_data["columns"][current_column_index]["cards"]
-                    if not (card["label"] == card_data_to_move["label"] and card.get("description", "") == card_data_to_move["description"])
+                    if not (card["label"] == card_data_to_move["label"] and
+                           card.get("description", "") == card_data_to_move["description"] and
+                           card.get("details", "") == card_data_to_move["details"])
                 ]
 
                 # Add to new column data
@@ -347,13 +355,17 @@ class KanbanApp(App):
                 save_board(self.board_data)
                 self.rebuild_board()
 
-                # Re-focus the moved card
-                for column in self.query(Column):
-                    for card in column.card_list_widget.children:
-                        if card.label == card_data_to_move["label"] and card.description == card_data_to_move["description"]:
-                            card.focus()
-                            print(f"Focused card: {card.label}")
-                            return
+                # After rebuild, query for the new target column and the new card instance
+                new_all_columns = list(self.query(Column))
+                new_target_column_widget = new_all_columns[target_column_index]
+
+                # Find the newly moved card in the new target column
+                for new_card_widget in new_target_column_widget.card_list_widget.children:
+                    if (new_card_widget.label == card_data_to_move["label"] and
+                        new_card_widget.description == card_data_to_move["description"] and
+                        new_card_widget.details == card_data_to_move["details"]):
+                        new_card_widget.focus()
+                        break
 
     def action_move_card_left(self) -> None:
         """Action to move the focused card to the left column."""
@@ -372,16 +384,17 @@ class KanbanApp(App):
                 if data:
                     new_title, new_description, new_details = data
                     
-                    # Update UI
-                    card_to_edit.label = new_title
-                    card_to_edit.description = new_description
-                    card_to_edit.details = new_details
-                    card_to_edit.refresh()
+                    # Store original values for identification
+                    original_label = card_to_edit.label
+                    original_description = card_to_edit.description
+                    original_details = card_to_edit.details
 
-                    # Update data structure
+                    # Update data structure first
                     for column_data in self.board_data["columns"]:
                         for card in column_data["cards"]:
-                            if card["label"] == card_to_edit.label and card.get("description", "") == card_to_edit.description:
+                            if (card["label"] == original_label and
+                                card.get("description", "") == original_description and
+                                card.get("details", "") == original_details):
                                 card["label"] = new_title
                                 card["description"] = new_description
                                 card["details"] = new_details
@@ -390,15 +403,16 @@ class KanbanApp(App):
                             continue
                         break
 
+                    # Update UI
+                    card_to_edit.label = new_title
+                    card_to_edit.description = new_description
+                    card_to_edit.details = new_details
+                    card_to_edit.refresh()
+
                     # Save the new state
                     save_board(self.board_data)
 
             self.push_screen(AddCardScreen(initial_title=card_to_edit.label, initial_description=card_to_edit.description, initial_details=card_to_edit.details), edit_card_callback)
-
-    def action_view_card_details(self) -> None:
-        """Action to view the details of the currently focused card."""
-        if isinstance(self.focused, Card):
-            self.push_screen(CardDetailScreen(self.focused))
 
     def action_delete_column(self) -> None:
         """Action to delete the currently focused column."""
@@ -497,7 +511,7 @@ class KanbanApp(App):
             current_column_index = all_columns.index(current_column)
 
             if current_column_index < len(all_columns) - 1:
-                target_column = all_columns[target_column_index + 1]
+                target_column = all_columns[current_column_index + 1]
                 if target_column.card_list_widget.children:
                     target_column.card_list_widget.children[0].focus()
                 else:

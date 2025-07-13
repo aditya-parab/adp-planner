@@ -1,0 +1,6 @@
+.venv/
+kanban-tui/__pycache__/
+kanban-tui/.pytest_cache/
+kanban-tui/build/
+kanban-tui/kanban_terminal.egg-info/
+.DS_Store

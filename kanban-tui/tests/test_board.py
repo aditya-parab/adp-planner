@@ -50,12 +50,13 @@ async def test_add_card(mock_save_board, mock_load_board):
         assert len(cards_in_column) == 1
         new_card = cards_in_column.first()
         assert new_card.label == "New Card Title"
+        assert new_card.description == "This is a new card description"
 
         # 5. Assert that the board_data in the KanbanApp instance has been updated
         expected_board_data = {
             "columns": [
                 {"title": "Input Queue", "cards": [
-                    {"label": "New Card Title", "description": "This is a new card description"}
+                    {"label": "New Card Title", "description": "This is a new card description", "details": ""}
                 ]},
                 {"title": "In Progress", "cards": []},
                 {"title": "Done", "cards": []},

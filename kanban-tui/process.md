@@ -6,12 +6,21 @@ This document outlines the architecture and key components of the Kanban Termina
 
 *   **`main.py`**: The application's entry point. It initializes and runs the `KanbanApp`.
 *   **`board.py`**: Contains the main application logic and UI components, including `KanbanApp`, `Column`, `Card`, and `AddCardScreen`.
-*   **`storage.py`**: Handles saving and loading the Kanban board data to/from a JSON file (`board_data.json`).
+*   **`storage.py`**: Handles saving and loading the Kanban board data to/from a JSON file (`~/.adp_planner_board.json`).
 *   **`board.css`**: Defines the visual styles for the `textual` widgets used in the application.
 
 ## Data Persistence
 
-The application automatically saves the current state of the Kanban board to `board_data.json` whenever changes are made (e.g., adding a card). When the application starts, it attempts to load the board from this file. If the file doesn't exist, a default board structure with "Input Queue", "In Progress", and "Done" columns is created.
+The application automatically saves the current state of the Kanban board to `~/.adp_planner_board.json` whenever changes are made (e.g., adding a card). When the application starts, it attempts to load the board from this file. If the file doesn't exist, a default board structure with "Input Queue", "In Progress", and "Done" columns is created.
+
+## Card Data Structure
+
+Each card in the application contains three main fields:
+- **`label`**: The card's title/name
+- **`description`**: A brief description of the card
+- **`details`**: Extended multi-line details for the card
+
+All operations (drag-and-drop, keyboard movement, editing, deletion) now properly preserve all three fields to ensure data consistency.
 
 ## Design Considerations
 
@@ -40,26 +49,17 @@ Furthermore, when new columns are added dynamically (e.g., via the `action_add_c
 
 The application's visual theme has been updated to a "Royal Navy Blue" color scheme. This was achieved by defining a new set of CSS variables in `board.css` within the `:root` selector. These variables (`--primary`, `--secondary`, `--background`, `--surface`, `--text`, `--panel-darken-1`, `--accent`) are then used throughout the stylesheet to apply a consistent blue-centric palette. To ensure these variables are correctly parsed and applied across the application, the `:root` block has been strategically placed at the very top of `board.css`. This guarantees that the color definitions are available before any other CSS rules attempt to use them, preventing parsing errors and ensuring the intended visual theme is consistently rendered.
 
-### PST Time Display
-
-To enhance the utility of the application, the current time in Pacific Standard Time (PST) is now displayed in the footer. This feature is implemented in `board.py` by:
-
-1.  Importing `datetime` and `ZoneInfo` for time and timezone handling.
-2.  Adding a `Static` widget with the ID `time-display` to the `KanbanApp`'s `compose` method, specifically within the `Footer`.
-3.  Implementing an `update_time` method that fetches the current UTC time, converts it to `America/Los_Angeles` (PST) timezone, and formats it.
-4.  Calling `update_time` on `on_mount` and setting up a `set_interval` to refresh the time every second. This ensures the time display is always current and relevant to the user's context.
-
 ### Column and Card Interactivity & Detail View
 
 To enhance user interaction and control, the Kanban board now supports column focusing, card dragging, and improved column management, along with a new card detail view.
 
 *   **Column Focusability**: The `Column` class now includes `can_focus = True`, enabling users to select and interact directly with columns. This is crucial for actions like deleting or renaming columns, as these operations often target the currently focused column.
 *   **Card Drag-and-Drop**: Cards (`Card` class) are now draggable, implemented by setting `can_drag = True`. The drag-and-drop functionality is managed within the `KanbanApp` through `on_mouse_down`, `on_mouse_move`, and `on_mouse_up` event handlers. When a card is dragged and dropped into a different column, the application:
-    *   Updates the underlying `board_data` structure to reflect the card's new column.
+    *   Updates the underlying `board_data` structure to reflect the card's new column, **preserving all card data including details**.
     *   Rebuilds the entire board to ensure the UI accurately reflects the data state.
-    *   Persists the changes to `board_data.json`.
-    This allows for intuitive reorganization of cards across the board.
-*   **Card Movement with Arrow Keys**: Cards can also be moved between columns using the left and right arrow keys. This functionality updates the `board_data` and rebuilds the board, similar to drag-and-drop, ensuring data consistency and UI accuracy.
+    *   Persists the changes to `~/.adp_planner_board.json`.
+    This allows for intuitive reorganization of cards across the board while maintaining data integrity.
+*   **Card Movement with Arrow Keys**: Cards can also be moved between columns using the left and right arrow keys. This functionality updates the `board_data` and rebuilds the board, similar to drag-and-drop, ensuring data consistency and UI accuracy. **All card fields (label, description, details) are preserved during movement**.
 *   **Delete Column Functionality**: The `action_delete_column` method now correctly identifies the focused column and removes it from both the UI and the `board_data`, ensuring persistence.
 *   **Rename Column Functionality**: The `action_rename_column` method now correctly identifies the focused column and allows users to rename it via a dialog, updating both the UI and the `board_data`, ensuring persistence.
 *   **Card Detail View**:
@@ -70,6 +70,13 @@ To enhance user interaction and control, the Kanban board now supports column fo
         *   Pressing the `i` key when a card is focused.
         *   Double-clicking on a card with the mouse.
 
-These enhancements significantly improve the usability and interactivity of the Kanban TUI application, providing a more fluid and efficient workflow for managing tasks and viewing detailed card information.
+### Data Consistency Improvements
 
+Recent updates have focused on ensuring complete data consistency across all operations:
 
+*   **Card Identification**: All card operations now use a comprehensive identification system that matches cards based on label, description, AND details fields to prevent data loss during operations.
+*   **Edit Operations**: The card editing functionality now properly preserves the original card data during updates, preventing data corruption when cards are modified.
+*   **Movement Operations**: Both keyboard-based and drag-and-drop card movements now preserve all card data fields, ensuring no information is lost when reorganizing the board.
+*   **Deletion Operations**: Card deletion now uses the complete card data for identification, ensuring the correct card is removed even when multiple cards have similar titles or descriptions.
+
+These enhancements significantly improve the usability and reliability of the Kanban TUI application, providing a more fluid and efficient workflow for managing tasks while maintaining complete data integrity across all operations.
